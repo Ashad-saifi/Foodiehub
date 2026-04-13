@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 import { useUser } from '../context/UserContext';
+import { registerUser } from '../services/api';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -64,18 +66,22 @@ const Register = () => {
 
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      const data = await registerUser({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
 
-    // Mock successful registration
-    login({
-      id: 1,
-      name: formData.name,
-      email: formData.email,
-    });
-
-    setIsLoading(false);
-    navigate('/dashboard');
+      login(data.user, data.token);
+      toast.success('Account created successfully! Welcome aboard! 🎉');
+      navigate('/dashboard');
+    } catch (error) {
+      const message = error.response?.data?.message || 'Registration failed. Please try again.';
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

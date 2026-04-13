@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaCheck } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
+import { placeOrder } from '../services/api';
 
 const Checkout = () => {
   const { cart, getTotalPrice, clearCart } = useCart();
@@ -17,10 +19,33 @@ const Checkout = () => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [promoError, setPromoError] = useState('');
 
-  const deliveryFee = 2.99;
-  const tax = getTotalPrice() * 0.08;
-  const total = getTotalPrice() + deliveryFee + tax;
+  let deliveryFee = 2.99;
+  let subtotal = getTotalPrice();
+  let discount = 0;
+
+  if (appliedPromo === 'FIRST50') {
+    discount = subtotal * 0.5;
+  } else if (appliedPromo === 'FREEDEL') {
+    deliveryFee = 0;
+  }
+
+  const tax = (subtotal - discount) * 0.08;
+  const total = (subtotal - discount) + deliveryFee + tax;
+
+  const handleApplyPromo = () => {
+    if (promoCode === 'FIRST50' || promoCode === 'FREEDEL') {
+      setAppliedPromo(promoCode);
+      setPromoError('');
+      toast.success('Promo code applied!');
+    } else {
+      setPromoError('Invalid promo code');
+      setAppliedPromo(null);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -53,12 +78,30 @@ const Checkout = () => {
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      const data = await placeOrder({
+        items: cart,
+        subtotal,
+        discount,
+        deliveryFee,
+        tax,
+        total,
+        address: formData.address,
+        city: formData.city,
+        zipCode: formData.zipCode,
+        phone: formData.phone,
+        paymentMethod: formData.paymentMethod,
+      });
 
-    // Clear cart and redirect to order tracking
-    clearCart();
-    navigate('/order-tracking');
+      clearCart();
+      toast.success('Order placed successfully! 🎉');
+      navigate('/order-tracking', { state: { order: data.order } });
+    } catch (error) {
+      const message = error.response?.data?.message || 'Failed to place order. Please try again.';
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (cart.length === 0) {
@@ -248,14 +291,47 @@ const Checkout = () => {
 
             <hr className="my-4" />
 
+            {/* Promo Code */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Promo Code
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                  placeholder="Enter code (e.g. FIRST50)"
+                  className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 uppercase"
+                />
+                <button
+                  type="button"
+                  onClick={handleApplyPromo}
+                  className="bg-gray-900 text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors"
+                >
+                  Apply
+                </button>
+              </div>
+              {promoError && <p className="text-red-500 text-sm mt-1">{promoError}</p>}
+              {appliedPromo && <p className="text-green-600 text-sm mt-1">Code applied successfully!</p>}
+            </div>
+
+            <hr className="my-4" />
+
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${getTotalPrice().toFixed(2)}</span>
+                <span>${subtotal.toFixed(2)}</span>
               </div>
+              {discount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Discount ({appliedPromo})</span>
+                  <span>-${discount.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span>Delivery Fee</span>
-                <span>${deliveryFee.toFixed(2)}</span>
+                <span>{deliveryFee === 0 ? <span className="text-green-600">Free</span> : `$${deliveryFee.toFixed(2)}`}</span>
               </div>
               <div className="flex justify-between">
                 <span>Tax</span>

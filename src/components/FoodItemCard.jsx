@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
 
 const FoodItemCard = ({ item }) => {
@@ -12,6 +13,7 @@ const FoodItemCard = ({ item }) => {
       price: item.price,
       image: item.image,
     });
+    toast.success(`${item.name} added to cart!`);
   };
 
   return (
@@ -20,6 +22,7 @@ const FoodItemCard = ({ item }) => {
         src={item.image}
         alt={item.name}
         className="w-full h-32 object-cover"
+        loading="lazy"
       />
 
       <div className="p-4">
@@ -29,7 +32,7 @@ const FoodItemCard = ({ item }) => {
           <span className="text-lg font-bold text-orange-500">${item.price.toFixed(2)}</span>
           <button
             onClick={handleAddToCart}
-            className="bg-orange-500 text-white p-2 rounded-full hover:bg-orange-600 transition-colors"
+            className="bg-orange-500 text-white p-2 rounded-full hover:bg-orange-600 transition-colors active:scale-95 transform"
           >
             <FaPlus className="text-sm" />
           </button>

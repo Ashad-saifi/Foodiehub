@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaSearch, FaStar } from 'react-icons/fa';
 import RestaurantCard from '../components/RestaurantCard';
 import Loader from '../components/Loader';
 import { fetchRestaurants, fetchCategories, fetchOffers } from '../services/api';
 
 const Home = () => {
+  const navigate = useNavigate();
   const [restaurants, setRestaurants] = useState([]);
   const [categories, setCategories] = useState([]);
   const [offers, setOffers] = useState([]);
@@ -36,8 +37,7 @@ const Home = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Navigate to restaurants page with search query
-      window.location.href = `/restaurants?search=${searchQuery}`;
+      navigate(`/restaurants?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 

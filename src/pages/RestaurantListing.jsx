@@ -15,8 +15,9 @@ const RestaurantListing = () => {
 
   useEffect(() => {
     const loadRestaurants = async () => {
+      setLoading(true);
       try {
-        const data = await fetchRestaurants();
+        const data = await fetchRestaurants(searchQuery);
         setRestaurants(data);
         setFilteredRestaurants(data);
       } catch (error) {
@@ -27,39 +28,17 @@ const RestaurantListing = () => {
     };
 
     loadRestaurants();
-  }, []);
-
-  useEffect(() => {
-    let filtered = restaurants;
-
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(restaurant =>
-        restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    setFilteredRestaurants(filtered);
-  }, [restaurants, searchQuery]);
+  }, [searchQuery]);
 
   const handleFilterChange = (filters) => {
     let filtered = restaurants;
 
-    // Apply search filter first
-    if (searchQuery) {
-      filtered = filtered.filter(restaurant =>
-        restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Apply other filters
+    // Apply filters
     if (filters.rating) {
       filtered = filtered.filter(restaurant => restaurant.rating >= parseFloat(filters.rating));
     }
 
-    if (filters.cuisine) {
+    if (filters.cuisine && filters.cuisine !== 'All') {
       filtered = filtered.filter(restaurant => restaurant.cuisine === filters.cuisine);
     }
 
@@ -68,7 +47,6 @@ const RestaurantListing = () => {
     }
 
     if (filters.distance) {
-      // Simple distance filtering - in real app, this would be more complex
       const distanceMap = {
         '< 1km': (dist) => parseFloat(dist) < 1,
         '1-2km': (dist) => parseFloat(dist) >= 1 && parseFloat(dist) < 2,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaPlus, FaMinus, FaTrash, FaShoppingCart } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
 import EmptyState from '../components/EmptyState';
 
@@ -95,7 +96,10 @@ const Cart = () => {
 
           <div className="mt-6 flex justify-between items-center">
             <button
-              onClick={clearCart}
+              onClick={() => {
+                clearCart();
+                toast.success('Cart cleared');
+              }}
               className="text-red-500 hover:text-red-600 font-medium"
             >
               Clear Cart
