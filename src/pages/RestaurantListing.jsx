@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import RestaurantCard from '../components/RestaurantCard';
 import FilterBar from '../components/FilterBar';
+import { RestaurantSkeleton } from '../components/Skeleton';
 import Loader from '../components/Loader';
 import EmptyState from '../components/EmptyState';
 import { fetchRestaurants } from '../services/api';
@@ -65,7 +66,19 @@ const RestaurantListing = () => {
   };
 
   if (loading) {
-    return <Loader />;
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <div className="h-10 w-64 bg-gray-200 animate-pulse rounded mb-2"></div>
+          <div className="h-4 w-32 bg-gray-200 animate-pulse rounded"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <RestaurantSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (

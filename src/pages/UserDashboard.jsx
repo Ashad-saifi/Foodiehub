@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaUser, FaMapMarkerAlt, FaPhone, FaEnvelope, FaShoppingBag, FaStar, FaEdit, FaSave, FaTimes } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import { OrderSkeleton } from '../components/Skeleton';
 import { useUser } from '../context/UserContext';
 import { fetchUserOrders } from '../services/api';
 
 const UserDashboard = () => {
+  const navigate = useNavigate();
   const { user, setUser } = useUser();
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
@@ -229,9 +232,10 @@ const UserDashboard = () => {
           <h2 className="text-2xl font-bold text-gray-900">Order History</h2>
 
           {loadingOrders ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading orders...</p>
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <OrderSkeleton key={i} />
+              ))}
             </div>
           ) : orders.length === 0 ? (
             <div className="bg-white rounded-lg shadow-md p-8 text-center">
@@ -271,7 +275,7 @@ const UserDashboard = () => {
                       {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                     </span>
                     <button 
-                       onClick={() => toast('Detailed view coming soon!', { icon: '🚧' })}
+                       onClick={() => navigate(`/orders/${order.id}`)}
                        className="text-orange-500 hover:text-orange-600 text-sm font-medium"
                     >
                       View Details

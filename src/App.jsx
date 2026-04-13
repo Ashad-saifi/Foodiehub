@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ContactModal from './components/ContactModal';
 import PrivateRoute from './components/PrivateRoute';
 import Home from './pages/Home';
 import RestaurantListing from './pages/RestaurantListing';
@@ -13,11 +14,14 @@ import OrderTracking from './pages/OrderTracking';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import UserDashboard from './pages/UserDashboard';
+import OrderDetails from './pages/OrderDetails';
 import NotFound from './pages/NotFound';
 import { CartProvider } from './context/CartContext';
 import { UserProvider } from './context/UserContext';
 
 function App() {
+  const [isContactOpen, setIsContactOpen] = React.useState(false);
+
   return (
     <UserProvider>
       <CartProvider>
@@ -44,7 +48,7 @@ function App() {
               }}
             />
 
-            <Navbar />
+            <Navbar onContactClick={() => setIsContactOpen(true)} />
             <main className="pt-16">
               <Routes>
                 {/* Public Routes */}
@@ -80,12 +84,21 @@ function App() {
                     </PrivateRoute>
                   }
                 />
+                <Route
+                  path="/orders/:id"
+                  element={
+                    <PrivateRoute>
+                      <OrderDetails />
+                    </PrivateRoute>
+                  }
+                />
 
                 {/* 404 Catch-all */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
-            <Footer />
+            <Footer onContactClick={() => setIsContactOpen(true)} />
+            <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
           </div>
         </Router>
       </CartProvider>
