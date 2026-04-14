@@ -1,10 +1,15 @@
-import express from "express";
+import express from "express"; // ✅ ADD THIS
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import restaurantRoutes from "./routes/restaurantRoutes.js";
 
 dotenv.config();
 
 const app = express();
+
+app.use(express.json());
+
+app.use("/api/restaurants", restaurantRoutes);
 
 // CONNECT DATABASE
 mongoose.connect(process.env.MONGO_URI)
