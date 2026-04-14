@@ -1,4 +1,11 @@
-// Mock API service using dummy data
+import axios from "axios";
+
+const API = "http://localhost:5000/api";
+
+export const getRestaurants = async () => {
+  const res = await axios.get(`${API}/restaurants`);
+  return res.data;
+};// Mock API service using dummy data
 
 export const fetchRestaurants = async () => {
   // Simulate API delay
