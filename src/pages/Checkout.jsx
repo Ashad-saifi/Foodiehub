@@ -100,7 +100,7 @@ const Checkout = () => {
       const message = error.response?.data?.message || 'Failed to place order. Please try again.';
       toast.error(message);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 

@@ -93,4 +93,37 @@ router.get('/me', async (req, res) => {
   }
 });
 
+// PUT /api/auth/profile — update user profile
+router.put('/profile', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    const { name, phone, address } = req.body;
+    
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+    if (address) user.address = address;
+
+    await user.save();
+
+    res.json({ 
+      message: 'Profile updated successfully',
+      user: { id: user._id, name: user.name, email: user.email, phone: user.phone, address: user.address } 
+    });
+  } catch (error) {
+    res.status(401).json({ message: 'Invalid token or session expired' });
+  }
+});
+
 export default router;

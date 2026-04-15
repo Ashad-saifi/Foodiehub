@@ -82,4 +82,31 @@ router.get('/:orderId', auth, async (req, res) => {
   }
 });
 
+// PATCH /api/orders/:id/status — update order status
+router.patch('/:id/status', auth, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const allowedStatuses = ['placed', 'confirmed', 'preparing', 'out-for-delivery', 'delivered', 'cancelled'];
+    
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
+
+    // In a real app, you'd check if user is admin. Here we allow the user to simulate it.
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    res.json({ message: 'Status updated', order });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update status' });
+  }
+});
+
 export default router;

@@ -96,6 +96,11 @@ export const getMe = async () => {
   return response.data;
 };
 
+export const updateProfile = async (userData) => {
+  const response = await api.put('/auth/profile', userData);
+  return response.data;
+};
+
 // Order APIs
 export const placeOrder = async (orderData) => {
   const response = await api.post('/orders', orderData);
@@ -109,6 +114,37 @@ export const fetchUserOrders = async () => {
 
 export const fetchOrderDetails = async (orderId) => {
   const response = await api.get(`/orders/${orderId}`);
+  return response.data;
+};
+
+export const updateOrderStatus = async (id, status) => {
+  const response = await api.patch(`/orders/${id}/status`, { status });
+  return response.data;
+};
+
+// Cart APIs
+export const fetchUserCart = async () => {
+  const response = await api.get('/cart');
+  return response.data;
+};
+
+export const updateCartApi = async (itemData) => {
+  const response = await api.post('/cart', itemData);
+  return response.data;
+};
+
+export const removeCartItemApi = async (id) => {
+  const response = await api.delete(`/cart/${id}`);
+  return response.data;
+};
+
+export const updateCartItemQuantityApi = async (id, quantity) => {
+  const response = await api.put(`/cart/${id}`, { quantity });
+  return response.data;
+};
+
+export const clearUserCartApi = async () => {
+  const response = await api.delete('/cart');
   return response.data;
 };
 

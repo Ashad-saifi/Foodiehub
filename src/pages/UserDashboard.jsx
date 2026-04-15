@@ -4,7 +4,7 @@ import { FaUser, FaMapMarkerAlt, FaPhone, FaEnvelope, FaShoppingBag, FaStar, FaE
 import toast from 'react-hot-toast';
 import { OrderSkeleton } from '../components/Skeleton';
 import { useUser } from '../context/UserContext';
-import { fetchUserOrders } from '../services/api';
+import { fetchUserOrders, updateProfile } from '../services/api';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -49,11 +49,16 @@ const UserDashboard = () => {
     }
   };
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
-    setUser({ ...user, ...editForm });
-    setIsEditing(false);
-    toast.success('Profile updated successfully!');
+    try {
+      const data = await updateProfile(editForm);
+      setUser(data.user);
+      setIsEditing(false);
+      toast.success('Profile updated successfully!');
+    } catch (error) {
+      toast.error('Failed to update profile');
+    }
   };
 
   const tabs = [
