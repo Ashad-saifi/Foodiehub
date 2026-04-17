@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 import { useUser } from '../context/UserContext';
+import { loginUser } from '../services/api';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +15,9 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Redirect to original destination after login, or dashboard
+  const from = location.state?.from?.pathname || '/dashboard';
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -49,18 +54,21 @@ const Login = () => {
 
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      const data = await loginUser({
+        email: formData.email,
+        password: formData.password,
+      });
 
-    // Mock successful login
-    login({
-      id: 1,
-      name: 'John Doe',
-      email: formData.email,
-    });
-
-    setIsLoading(false);
-    navigate('/dashboard');
+      login(data.user, data.token);
+      toast.success('Welcome back! 👋');
+      navigate(from, { replace: true });
+    } catch (error) {
+      const message = error.response?.data?.message || 'Login failed. Please try again.';
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -158,9 +166,13 @@ const Login = () => {
             </div>
 
             <div className="text-sm">
-              <a href="#" className="font-medium text-orange-500 hover:text-orange-600">
+              <button
+                type="button"
+                onClick={() => toast.success('Password reset link sent to your email! (Simulated)')}
+                className="font-medium text-orange-500 hover:text-orange-600"
+              >
                 Forgot your password?
-              </a>
+              </button>
             </div>
           </div>
 

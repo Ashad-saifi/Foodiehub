@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaFacebook, FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa';
 
-const Footer = () => {
+const Footer = ({ onContactClick }) => {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -69,9 +69,12 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-orange-500 transition-colors">
+                <button 
+                  onClick={onContactClick}
+                  className="text-gray-400 hover:text-orange-500 transition-colors"
+                >
                   Contact Us
-                </a>
+                </button>
               </li>
               <li>
                 <a href="#" className="text-gray-400 hover:text-orange-500 transition-colors">

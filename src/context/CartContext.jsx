@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
 const CartContext = createContext();
 
 const cartReducer = (state, action) => {
   switch (action.type) {
-    case 'ADD_TO_CART':
+    case 'ADD_TO_CART': {
       const existingItem = state.items.find(item => item.id === action.payload.id);
       if (existingItem) {
         return {
@@ -20,6 +20,7 @@ const cartReducer = (state, action) => {
         ...state,
         items: [...state.items, { ...action.payload, quantity: 1 }],
       };
+    }
     case 'REMOVE_FROM_CART':
       return {
         ...state,
@@ -41,8 +42,28 @@ const cartReducer = (state, action) => {
   }
 };
 
+// Load cart from localStorage on startup
+const loadCartFromStorage = () => {
+  try {
+    const saved = localStorage.getItem('foodiehub_cart');
+    if (saved) return { items: JSON.parse(saved) };
+  } catch (e) {
+    console.error('Failed to load cart from storage:', e);
+  }
+  return { items: [] };
+};
+
 export const CartProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, { items: [] });
+  const [state, dispatch] = useReducer(cartReducer, undefined, loadCartFromStorage);
+
+  // Persist cart to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('foodiehub_cart', JSON.stringify(state.items));
+    } catch (e) {
+      console.error('Failed to save cart to storage:', e);
+    }
+  }, [state.items]);
 
   const addToCart = (item) => {
     dispatch({ type: 'ADD_TO_CART', payload: item });

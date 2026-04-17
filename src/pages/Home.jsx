@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { getRestaurants } from "../services/api";
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaSearch, FaStar } from 'react-icons/fa';
+import RestaurantCard from '../components/RestaurantCard';
+import Loader from '../components/Loader';
+import { fetchRestaurants, fetchCategories, fetchOffers } from '../services/api';
 
 const Home = () => {
+  const navigate = useNavigate();
   const [restaurants, setRestaurants] = useState([]);
 
   useEffect(() => {
@@ -12,6 +17,17 @@ const Home = () => {
 
     fetchData();
   }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/restaurants?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div>

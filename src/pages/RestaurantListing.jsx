@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import RestaurantCard from '../components/RestaurantCard';
 import FilterBar from '../components/FilterBar';
+import { RestaurantSkeleton } from '../components/Skeleton';
 import Loader from '../components/Loader';
 import EmptyState from '../components/EmptyState';
 import { fetchRestaurants } from '../services/api';
@@ -15,8 +16,9 @@ const RestaurantListing = () => {
 
   useEffect(() => {
     const loadRestaurants = async () => {
+      setLoading(true);
       try {
-        const data = await fetchRestaurants();
+        const data = await fetchRestaurants(searchQuery);
         setRestaurants(data);
         setFilteredRestaurants(data);
       } catch (error) {
@@ -27,39 +29,17 @@ const RestaurantListing = () => {
     };
 
     loadRestaurants();
-  }, []);
-
-  useEffect(() => {
-    let filtered = restaurants;
-
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(restaurant =>
-        restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    setFilteredRestaurants(filtered);
-  }, [restaurants, searchQuery]);
+  }, [searchQuery]);
 
   const handleFilterChange = (filters) => {
     let filtered = restaurants;
 
-    // Apply search filter first
-    if (searchQuery) {
-      filtered = filtered.filter(restaurant =>
-        restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Apply other filters
+    // Apply filters
     if (filters.rating) {
       filtered = filtered.filter(restaurant => restaurant.rating >= parseFloat(filters.rating));
     }
 
-    if (filters.cuisine) {
+    if (filters.cuisine && filters.cuisine !== 'All') {
       filtered = filtered.filter(restaurant => restaurant.cuisine === filters.cuisine);
     }
 
@@ -68,7 +48,6 @@ const RestaurantListing = () => {
     }
 
     if (filters.distance) {
-      // Simple distance filtering - in real app, this would be more complex
       const distanceMap = {
         '< 1km': (dist) => parseFloat(dist) < 1,
         '1-2km': (dist) => parseFloat(dist) >= 1 && parseFloat(dist) < 2,
@@ -87,7 +66,19 @@ const RestaurantListing = () => {
   };
 
   if (loading) {
-    return <Loader />;
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <div className="h-10 w-64 bg-gray-200 animate-pulse rounded mb-2"></div>
+          <div className="h-4 w-32 bg-gray-200 animate-pulse rounded"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <RestaurantSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
