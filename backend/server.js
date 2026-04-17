@@ -32,6 +32,16 @@ app.get('/', (req, res) => {
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
+app.use(express.json());
+
+app.use("/api/restaurants", restaurantRoutes);
+app.use("/api/users", userRoutes);
+
+
+// CONNECT DATABASE
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.log("❌ DB Error:", err));
 
 // ─── Error handler ───────────────────────────────
 app.use((err, req, res, next) => {
@@ -53,3 +63,8 @@ mongoose.connect(process.env.MONGO_URI)
     console.error('❌ DB Error:', err.message);
     process.exit(1);
   });
+app.listen(PORT, () => {
+  console.log(`🔥 Server running on port ${PORT}`);
+  console.log("User routes loaded");
+
+});
